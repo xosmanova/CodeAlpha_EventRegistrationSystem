@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Registration - CodeAlpha Event Registration System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow rounded-4 p-4 text-center">
+                <div class="mb-3 text-warning">
+                    <i class="bi bi-exclamation-triangle-fill display-2"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Cancel Registration?</h3>
+                <p class="text-secondary small mb-4">
+                    Are you sure you want to cancel your registration for <strong>{{ registration.event.title }}</strong>?
+                    This will release your reserved seat to other attendees.
+                </p>
+
+                <div class="bg-light p-3 rounded-3 text-start small mb-4">
+                    <div><strong>Ticket Code:</strong> <span class="font-monospace">{{ registration.ticket_code }}</span></div>
+                    <div><strong>Attendee:</strong> {{ registration.full_name }}</div>
+                    <div><strong>Email:</strong> {{ registration.email }}</div>
+                    <div><strong>Event Date:</strong> {{ registration.event.date|date:"M d, Y - h:i A" }}</div>
+                </div>
+
+                <form method="POST" action="{% url 'cancel_registration' registration.id %}">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'my_registrations' %}" class="btn btn-outline-secondary w-50 py-2">
+                            Keep Registration
+                        </a>
+                        <button type="submit" class="btn btn-danger w-50 py-2 fw-semibold">
+                            Yes, Cancel Seat
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+/* Custom CSS styling for CodeAlpha Event Registration Portal */
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary-color: #06b6d4;
+    --dark-bg: #0f172a;
+    --card-bg: #ffffff;
+}
+
+body {
+    background-color: #f8fafc;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.hero-gradient {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+    color: white;
+}
+
+.card-event {
+    border: none;
+    border-radius: 16px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    overflow: hidden;
+}
+
+.card-event:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.badge-pill-tech {
+    background-color: #e0e7ff;
+    color: #3730a3;
+    font-weight: 600;
+}
+
+.badge-seats {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.ticket-card {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    background: #ffffff;
+    position: relative;
+}
+
+.ticket-card::before, .ticket-card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    background: #f8fafc;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.ticket-card::before { left: -10px; }
+.ticket-card::after { right: -10px; }

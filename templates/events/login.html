@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - CodeAlpha Event Registration System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-subtle text-primary p-3 rounded-circle d-inline-block mb-3">
+                        <i class="bi bi-person-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold">Sign In</h3>
+                    <p class="text-muted small">Access your registered events and tickets</p>
+                </div>
+
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Username</label>
+                        <input type="text" name="username" class="form-control" required placeholder="Enter username">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Password</label>
+                        <input type="password" name="password" class="form-control" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Sign In</button>
+                </form>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <small class="text-muted">
+                        Don't have an account? <a href="{% url 'signup' %}" class="fw-semibold">Sign Up</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

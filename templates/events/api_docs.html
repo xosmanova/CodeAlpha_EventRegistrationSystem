@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}REST API Documentation - CodeAlpha Event Registration System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-4 text-center">
+        <span class="badge bg-primary px-3 py-2 rounded-pill mb-2">Backend REST API Reference</span>
+        <h2 class="fw-bold">API Endpoints Specification</h2>
+        <p class="text-muted max-w-xl mx-auto">
+            Interactive overview of all RESTful API endpoints for events, user registrations, and cancellations.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Event Endpoints -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h4 class="fw-bold text-primary mb-3"><i class="bi bi-calendar-event me-2"></i> Events Endpoints</h4>
+
+                <div class="accordion" id="eventsAccordion">
+                    <!-- GET /api/events/ -->
+                    <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#epEventsList">
+                                <span class="badge bg-success me-3 font-monospace">GET</span>
+                                <span class="fw-bold font-monospace me-3">/api/events/</span>
+                                <span class="text-muted small">List all upcoming events with optional filtering (?search=..., ?category=...)</span>
+                            </button>
+                        </h2>
+                        <div id="epEventsList" class="accordion-collapse collapse" data-bs-parent="#eventsAccordion">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Description:</strong> Returns an array of active events with registered count and available seats.</p>
+                                <h6>Response Example (200 OK):</h6>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>[
+  {
+    "id": 1,
+    "title": "CodeAlpha Tech Summit 2026",
+    "description": "Annual flagship software engineering gathering...",
+    "category": "TECH",
+    "location": "Baku Convention Center & Virtual Stream",
+    "date": "2026-11-15T09:00:00Z",
+    "capacity": 200,
+    "organizer_name": "admin",
+    "registered_count": 42,
+    "available_seats": 158,
+    "is_full": false
+  }
+]</code></pre>
+                                <a href="{% url 'api_events_list' %}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> Test in Browser
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GET /api/events/<id>/ -->
+                    <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#epEventDetail">
+                                <span class="badge bg-success me-3 font-monospace">GET</span>
+                                <span class="fw-bold font-monospace me-3">/api/events/{id}/</span>
+                                <span class="text-muted small">Retrieve details of a single event</span>
+                            </button>
+                        </h2>
+                        <div id="epEventDetail" class="accordion-collapse collapse" data-bs-parent="#eventsAccordion">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Description:</strong> Get detailed information about an event including capacity, registered count, and organizer info.</p>
+                                <h6>Response Example (200 OK):</h6>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>{
+  "id": 1,
+  "title": "CodeAlpha Tech Summit 2026",
+  "category": "TECH",
+  "location": "Baku Convention Center",
+  "date": "2026-11-15T09:00:00Z",
+  "capacity": 200,
+  "registered_count": 42,
+  "available_seats": 158,
+  "is_full": false,
+  "is_past": false
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- POST /api/events/ -->
+                    <div class="accordion-item border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#epCreateEvent">
+                                <span class="badge bg-primary me-3 font-monospace">POST</span>
+                                <span class="fw-bold font-monospace me-3">/api/events/</span>
+                                <span class="text-muted small">Create a new event (Authenticated Organizer/Staff)</span>
+                            </button>
+                        </h2>
+                        <div id="epCreateEvent" class="accordion-collapse collapse" data-bs-parent="#eventsAccordion">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Headers:</strong> <code>Content-Type: application/json</code>, <code>Authorization: Basic/Session</code></p>
+                                <h6>Request Body:</h6>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>{
+  "title": "Cloud Architecture Workshop",
+  "description": "Deep dive into scalable cloud systems",
+  "category": "WORKSHOP",
+  "location": "Room 402, Science Hall",
+  "date": "2026-12-01T14:00:00Z",
+  "capacity": 40
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Endpoints -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h4 class="fw-bold text-success mb-3"><i class="bi bi-ticket-perforated me-2"></i> Registration Endpoints</h4>
+
+                <div class="accordion" id="regAccordion">
+                    <!-- POST /api/events/<id>/register/ -->
+                    <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#epRegister">
+                                <span class="badge bg-primary me-3 font-monospace">POST</span>
+                                <span class="fw-bold font-monospace me-3">/api/events/{id}/register/</span>
+                                <span class="text-muted small">Submit registration form for an event</span>
+                            </button>
+                        </h2>
+                        <div id="epRegister" class="accordion-collapse collapse" data-bs-parent="#regAccordion">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Request Body:</strong></p>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>{
+  "full_name": "Leyla Mammadova",
+  "email": "leyla@example.com",
+  "phone": "+994 50 123 45 67",
+  "notes": "Looking forward to backend session!"
+}</code></pre>
+                                <h6>Response Example (201 Created):</h6>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>{
+  "message": "Registration successful! You have secured your seat.",
+  "registration": {
+    "id": 5,
+    "ticket_code": "EVT-8A7B2C1D",
+    "event": 1,
+    "event_title": "CodeAlpha Tech Summit 2026",
+    "full_name": "Leyla Mammadova",
+    "email": "leyla@example.com",
+    "status": "CONFIRMED"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GET /api/my-registrations/ -->
+                    <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#epMyRegs">
+                                <span class="badge bg-success me-3 font-monospace">GET</span>
+                                <span class="fw-bold font-monospace me-3">/api/my-registrations/?email=user@example.com</span>
+                                <span class="text-muted small">View registered events by user account or email lookup</span>
+                            </button>
+                        </h2>
+                        <div id="epMyRegs" class="accordion-collapse collapse" data-bs-parent="#regAccordion">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Description:</strong> Returns all active and previous registrations for the authenticated user or matching email query.</p>
+                                <h6>Response Example (200 OK):</h6>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>[
+  {
+    "id": 5,
+    "ticket_code": "EVT-8A7B2C1D",
+    "event_title": "CodeAlpha Tech Summit 2026",
+    "event_date": "2026-11-15T09:00:00Z",
+    "event_location": "Baku Convention Center",
+    "full_name": "Leyla Mammadova",
+    "email": "leyla@example.com",
+    "status": "CONFIRMED"
+  }
+]</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- POST /api/registrations/<id>/cancel/ -->
+                    <div class="accordion-item border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#epCancelReg">
+                                <span class="badge bg-danger me-3 font-monospace">POST / DELETE</span>
+                                <span class="fw-bold font-monospace me-3">/api/registrations/{id}/cancel/</span>
+                                <span class="text-muted small">Cancel a registration and free up the seat</span>
+                            </button>
+                        </h2>
+                        <div id="epCancelReg" class="accordion-collapse collapse" data-bs-parent="#regAccordion">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Description:</strong> Updates the registration status to <code>CANCELLED</code>, freeing up capacity for the event.</p>
+                                <h6>Response Example (200 OK):</h6>
+                                <pre class="bg-dark text-light p-3 rounded-3 font-monospace small"><code>{
+  "message": "Registration successfully cancelled. The seat has been freed.",
+  "registration": {
+    "id": 5,
+    "ticket_code": "EVT-8A7B2C1D",
+    "status": "CANCELLED"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Endpoints -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h4 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check me-2"></i> Authentication Endpoints</h4>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <span class="badge bg-primary font-monospace me-2">POST</span>
+                            <span class="fw-bold font-monospace">/api/auth/register/</span>
+                            <span class="text-muted small ms-2">- Register a new attendee or organizer account</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <span class="badge bg-primary font-monospace me-2">POST</span>
+                            <span class="fw-bold font-monospace">/api/auth/login/</span>
+                            <span class="text-muted small ms-2">- Log in and create user session</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <span class="badge bg-primary font-monospace me-2">POST</span>
+                            <span class="fw-bold font-monospace">/api/auth/logout/</span>
+                            <span class="text-muted small ms-2">- Terminate user session</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <span class="badge bg-success font-monospace me-2">GET</span>
+                            <span class="fw-bold font-monospace">/api/auth/me/</span>
+                            <span class="text-muted small ms-2">- Check current authentication status</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

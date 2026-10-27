@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Events - CodeAlpha Event Registration System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-gradient py-5 mb-4 shadow">
+    <div class="container text-center py-4">
+        <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 rounded-pill mb-3">
+            <i class="bi bi-stars me-1"></i> CodeAlpha Backend Internship Showcase
+        </span>
+        <h1 class="display-4 fw-extrabold mb-3 text-white">Event Registration & Management System</h1>
+        <p class="lead text-light opacity-75 max-w-2xl mx-auto mb-4" style="max-width: 650px; margin: 0 auto;">
+            Discover conferences, bootcamps, workshops, and hackathons. Register instantly, manage your tickets, or organize your own events.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <form method="GET" action="{% url 'home' %}" class="input-group input-group-lg shadow-sm">
+                    <input type="text" name="q" value="{{ query }}" class="form-control rounded-start-pill ps-4" placeholder="Search events by title, keyword, or venue...">
+                    {% if selected_category %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                    {% endif %}
+                    <button class="btn btn-warning rounded-end-pill px-4 fw-semibold text-dark" type="submit">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Categories -->
+<div class="container mb-4">
+    <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center">
+        <a href="{% url 'home' %}{% if query %}?q={{ query }}{% endif %}" 
+           class="btn btn-sm {% if not selected_category %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+            All Events
+        </a>
+        {% for cat_code, cat_name in categories %}
+            <a href="{% url 'home' %}?category={{ cat_code }}{% if query %}&q={{ query }}{% endif %}" 
+               class="btn btn-sm {% if selected_category == cat_code %}btn-primary{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+                {{ cat_name }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Events Grid -->
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">Upcoming Events</h3>
+            <p class="text-muted small mb-0">Showing {{ events|length }} scheduled events</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'api_events_list' %}" target="_blank" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-braces me-1"></i> View JSON API
+            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'create_event' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Post New Event
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if events %}
+        <div class="row g-4">
+            {% for event in events %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-event h-100 shadow-sm border-0 position-relative">
+                        <!-- Banner Image or Gradient Placeholder -->
+                        {% if event.image_url %}
+                            <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.title }}" style="height: 190px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-dark text-white d-flex align-items-center justify-content-center p-4" style="height: 190px; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                                <i class="bi bi-calendar-check display-3 text-white opacity-50"></i>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-body d-flex flex-column p-4">
+                            <!-- Category and Seats Badge -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1">
+                                    {{ event.get_category_display }}
+                                </span>
+                                {% if event.is_full %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-1">
+                                        <i class="bi bi-x-circle me-1"></i> Sold Out
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                        <i class="bi bi-check-circle me-1"></i> {{ event.available_seats }} seats left
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h5 class="card-title fw-bold text-dark mt-2 mb-2">{{ event.title }}</h5>
+                            <p class="card-text text-secondary small flex-grow-1">
+                                {{ event.description|truncatewords:20 }}
+                            </p>
+
+                            <hr class="my-3 opacity-25">
+
+                            <!-- Event Details Info -->
+                            <div class="text-muted small mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-calendar3 text-primary"></i>
+                                    <span>{{ event.date|date:"D, M d, Y - h:i A" }}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-geo-alt text-danger"></i>
+                                    <span class="text-truncate">{{ event.location }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                    Details
+                                </a>
+                                {% if event.is_full %}
+                                    <button class="btn btn-secondary btn-sm flex-fill" disabled>Fully Booked</button>
+                                {% else %}
+                                    <a href="{% url 'event_detail' event.id %}#register" class="btn btn-primary btn-sm flex-fill">
+                                        Register Now
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 my-5 bg-white rounded-4 shadow-sm border p-5">
+            <i class="bi bi-calendar-x text-muted display-1"></i>
+            <h4 class="mt-3 fw-bold text-dark">No Events Found</h4>
+            <p class="text-muted">No events matched your search query or selected category.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4">Reset Filters</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

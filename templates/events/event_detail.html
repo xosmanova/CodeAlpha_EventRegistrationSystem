@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - Event Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Event Details Column -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                {% if event.image_url %}
+                    <img src="{{ event.image_url }}" alt="{{ event.title }}" class="w-100" style="max-height: 380px; object-fit: cover;">
+                {% else %}
+                    <div class="p-5 text-white d-flex align-items-center justify-content-center" style="height: 260px; background: linear-gradient(135deg, #4338ca, #6366f1);">
+                        <i class="bi bi-calendar-event display-1 opacity-75"></i>
+                    </div>
+                {% endif %}
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
+                            {{ event.get_category_display }}
+                        </span>
+                        {% if event.is_full %}
+                            <span class="badge bg-danger rounded-pill px-3 py-2">
+                                <i class="bi bi-x-circle me-1"></i> Event Fully Booked
+                            </span>
+                        {% else %}
+                            <span class="badge bg-success rounded-pill px-3 py-2">
+                                <i class="bi bi-check-circle me-1"></i> {{ event.available_seats }} Seats Available
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="fw-bold mb-3">{{ event.title }}</h1>
+
+                    <!-- Key Event Specs -->
+                    <div class="row g-3 py-3 my-2 bg-light rounded-3">
+                        <div class="col-sm-6 col-md-4">
+                            <small class="text-muted d-block"><i class="bi bi-calendar-check me-1"></i> Date & Time</small>
+                            <span class="fw-semibold">{{ event.date|date:"F d, Y - h:i A" }}</span>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <small class="text-muted d-block"><i class="bi bi-geo-alt me-1"></i> Venue / Location</small>
+                            <span class="fw-semibold">{{ event.location }}</span>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <small class="text-muted d-block"><i class="bi bi-person me-1"></i> Organizer</small>
+                            <span class="fw-semibold">{% if event.organizer %}{{ event.organizer.get_full_name|default:event.organizer.username }}{% else %}CodeAlpha Community{% endif %}</span>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mt-4 mb-3">About This Event</h4>
+                    <div class="text-secondary leading-relaxed fs-6" style="white-space: pre-line;">
+                        {{ event.description }}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Event ID: #{{ event.id }}</span>
+                        <a href="{% url 'api_event_detail' event.id %}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-code-slash me-1"></i> View in REST API
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form Column -->
+        <div class="col-lg-4" id="register">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 90px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0">Register Now</h4>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Free Entry</span>
+                </div>
+
+                <!-- Capacity Progress Bar -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Capacity: <strong>{{ event.capacity }}</strong></span>
+                        <span>Filled: <strong>{{ event.registered_count }} / {{ event.capacity }}</strong></span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        {% widthratio event.registered_count event.capacity 100 as fill_pct %}
+                        <div class="progress-bar {% if event.is_full %}bg-danger{% else %}bg-primary{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ fill_pct }}%;" 
+                             aria-valuenow="{{ fill_pct }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                {% if event.is_full %}
+                    <div class="alert alert-danger text-center">
+                        <i class="bi bi-exclamation-triangle-fill fs-2 d-block mb-2"></i>
+                        <strong>Registration Closed!</strong>
+                        <p class="small mb-0 mt-1">All seats have been reserved. Please check other upcoming events or check back later if someone cancels.</p>
+                    </div>
+                {% else %}
+                    <form method="POST" action="{% url 'event_detail' event.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Full Name *</label>
+                            <input type="text" name="full_name" class="form-control" 
+                                   value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" 
+                                   required placeholder="e.g. Ali Aliyev">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Email Address *</label>
+                            <input type="email" name="email" class="form-control" 
+                                   value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" 
+                                   required placeholder="e.g. ali@example.com">
+                            <div class="form-text">Your ticket confirmation will be linked to this email.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+994 50 123 45 67">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Special Requests / Notes</label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Any dietary preferences or questions?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-3 shadow-sm">
+                            <i class="bi bi-ticket-perforated-fill me-1"></i> Confirm Registration
+                        </button>
+                    </form>
+                {% endif %}
+
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Already registered? <a href="{% url 'my_registrations' %}">View your tickets here</a>.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

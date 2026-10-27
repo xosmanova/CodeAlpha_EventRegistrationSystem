@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}My Registrations - CodeAlpha Event Registration System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-ticket-perforated text-primary me-2"></i>My Registrations & Tickets</h2>
+            <p class="text-muted mb-0">View your active event bookings or cancel a registration to free up your seat.</p>
+        </div>
+        <a href="{% url 'home' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Browse More Events
+        </a>
+    </div>
+
+    <!-- Lookup Form for Guests -->
+    {% if not user.is_authenticated %}
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-light">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-search me-1 text-primary"></i> Guest Ticket Lookup</h6>
+            <p class="text-muted small mb-3">If you registered without an account, enter the email address you used to register:</p>
+            <form method="GET" action="{% url 'my_registrations' %}" class="row g-2 align-items-center">
+                <div class="col-md-8">
+                    <input type="email" name="email" value="{{ email_query }}" class="form-control" placeholder="Enter your registration email..." required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Find My Tickets
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- Registrations List -->
+    {% if registrations %}
+        <div class="row g-4">
+            {% for reg in registrations %}
+                <div class="col-lg-6">
+                    <div class="ticket-card shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <span class="badge bg-secondary-subtle text-secondary font-monospace border">
+                                        {{ reg.ticket_code }}
+                                    </span>
+                                </div>
+                                <div>
+                                    {% if reg.status == 'CONFIRMED' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Confirmed
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">
+                                            <i class="bi bi-x-circle-fill me-1"></i> Cancelled
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <h4 class="fw-bold text-dark mb-1">{{ reg.event.title }}</h4>
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-tag me-1"></i> {{ reg.event.get_category_display }}
+                            </p>
+
+                            <div class="bg-light p-3 rounded-3 small mb-3">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block"><i class="bi bi-calendar3 me-1"></i> Date & Time:</span>
+                                        <strong>{{ reg.event.date|date:"M d, Y - h:i A" }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block"><i class="bi bi-geo-alt me-1"></i> Location:</span>
+                                        <strong class="text-truncate d-block">{{ reg.event.location }}</strong>
+                                    </div>
+                                    <div class="col-6 mt-2">
+                                        <span class="text-muted d-block"><i class="bi bi-person me-1"></i> Attendee:</span>
+                                        <strong>{{ reg.full_name }}</strong>
+                                    </div>
+                                    <div class="col-6 mt-2">
+                                        <span class="text-muted d-block"><i class="bi bi-envelope me-1"></i> Email:</span>
+                                        <strong class="text-truncate d-block">{{ reg.email }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 pt-2 border-top">
+                            <a href="{% url 'event_detail' reg.event.id %}" class="btn btn-outline-secondary btn-sm flex-fill">
+                                Event Details
+                            </a>
+                            <button onclick="window.print()" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-printer me-1"></i> Print Ticket
+                            </button>
+                            {% if reg.status == 'CONFIRMED' %}
+                                <a href="{% url 'cancel_registration' reg.id %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-slash-circle me-1"></i> Cancel Booking
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm border p-5">
+            <i class="bi bi-ticket-perforated text-muted display-2"></i>
+            <h4 class="mt-3 fw-bold text-dark">No Registrations Found</h4>
+            <p class="text-muted">
+                {% if email_query %}
+                    No registrations found for <strong>{{ email_query }}</strong>.
+                {% else %}
+                    You haven't registered for any events yet.
+                {% endif %}
+            </p>
+            <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4">Browse Upcoming Events</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

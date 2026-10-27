@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Event - Organizer Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="bg-primary-subtle text-primary p-3 rounded-circle">
+                        <i class="bi bi-calendar-plus fs-3"></i>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-0">Host a New Event</h2>
+                        <p class="text-muted small mb-0">Fill in the event details to open registrations.</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{% url 'create_event' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Event Title *</label>
+                        <input type="text" name="title" class="form-control form-control-lg" required placeholder="e.g. Next-Gen AI & Python Conference 2026">
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Category *</label>
+                            <select name="category" class="form-select">
+                                {% for code, label in categories %}
+                                    <option value="{{ code }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Seat Capacity *</label>
+                            <input type="number" name="capacity" class="form-control" value="50" min="1" max="10000" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Date & Time *</label>
+                            <input type="datetime-local" name="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Location / Venue *</label>
+                            <input type="text" name="location" class="form-control" required placeholder="e.g. Baku Convention Center or Zoom Link">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Banner Image URL (Optional)</label>
+                        <input type="url" name="image_url" class="form-control" placeholder="https://images.unsplash.com/photo-...">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Event Description *</label>
+                        <textarea name="description" class="form-control" rows="5" required placeholder="Provide an engaging description, agenda, prerequisites, and speaker info..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-5 fw-semibold">Publish Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
