@@ -1,175 +1,120 @@
-# CodeAlpha Backend Development Internship
-## 🎯 TASK 2: Event Registration System
+# Event Registration System
+### CodeAlpha Backend Development Internship — Task 2
 
-[![Python Version](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org)
-[![Framework](https://img.shields.io/badge/Django-6.1-green.svg)](https://djangoproject.com)
-[![DRF](https://img.shields.io/badge/Django_REST_Framework-3.18-red.svg)](https://www.django-rest-framework.org)
-[![Tests](https://img.shields.io/badge/Tests-10%20Passed-brightgreen.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-purple.svg)]()
+A backend system for managing events and attendee registrations, built using **Python**, **Django**, and **Django REST Framework (DRF)**.
 
-A robust, enterprise-grade **Event Registration & Management Backend System** built with **Django** and **Django REST Framework (DRF)**.
-
-This system provides full RESTful APIs and a responsive interactive web interface for creating events, browsing upcoming events, reserving tickets, real-time capacity and duplicate registration handling, ticket management/cancellation, and an organizer/administrator portal.
+The system handles event creation, capacity limits, real-time seat availability, unique ticket generation, duplicate registration prevention, and cancellation workflows. It includes both RESTful API endpoints and a web interface for demonstrations.
 
 ---
 
-## 🌟 Key Features
+## Features
 
-1. **Event Management:**
-   - Create, list, retrieve, update, and manage events.
-   - Filter by categories (*Technology, Workshop, Seminar, Hackathon, Networking*).
-   - Full-text search by title, description, or venue location.
-   - Real-time seat capacity tracking (`registered_count`, `available_seats`, `is_full`).
-
-2. **Registration & Ticket Reservation:**
-   - Reserve seats with instant unique ticket codes (e.g. `EVT-4A7B2C1D`).
-   - Guest registration (via email) or authenticated user registration.
-   - **Concurrency & Overbooking Protection**: Rejects bookings once capacity is reached.
-   - **Duplicate Prevention**: Prevents the same email from registering multiple times for the same event.
-
-3. **Attendee Self-Management (View & Cancel):**
-   - Attendee dashboard to view all active and past bookings.
-   - One-click cancellation with immediate seat release and ticket status update.
-   - Printable ticket receipts.
-
-4. **Organizer & Administrator Dashboard (Django Admin):**
-   - Manage events and registrations.
-   - Inline attendees overview inside each event.
-   - Quick bulk actions (*Mark Confirmed*, *Mark Cancelled*).
-
-5. **Complete RESTful API & Interactive Explorer:**
-   - Clean JSON endpoints with standard HTTP status codes.
-   - Built-in API documentation page (`/docs/`).
+- **Event Management**: Create, list, search, and filter events by category (Tech, Workshops, Seminars, Hackathons).
+- **Seat Availability Tracking**: Tracks capacity dynamically (`registered_count` and `available_seats`). Prevents overbooking once an event reaches its limit.
+- **Registration & Ticket Generation**: Generates unique ticket codes (e.g., `EVT-4A7B2C1D`) for attendees.
+- **Duplicate Prevention**: Prevents duplicate active registrations for the same event using the same email address.
+- **Cancellation & Seat Release**: Allows attendees to cancel their booking, which automatically frees up the seat for other users.
+- **Admin Panel**: Django Admin dashboard for organizers to manage events, view attendees, and update booking statuses.
+- **REST API & Interactive Docs**: Fully documented REST endpoints accessible at `/docs/`.
 
 ---
 
-## 🏛️ Database Models
+## Tech Stack
 
-```mermaid
-erDiagram
-    USER ||--o{ EVENT : organizes
-    USER ||--o{ REGISTRATION : attends
-    EVENT ||--o{ REGISTRATION : contains
-
-    USER {
-        int id PK
-        string username
-        string email
-        string password
-    }
-
-    EVENT {
-        int id PK
-        string title
-        string description
-        string category
-        string location
-        datetime date
-        int capacity
-        int organizer_id FK
-        string image_url
-        boolean is_active
-        datetime created_at
-    }
-
-    REGISTRATION {
-        int id PK
-        int event_id FK
-        int user_id FK
-        string full_name
-        string email
-        string phone
-        string notes
-        string ticket_code
-        string status
-        datetime created_at
-    }
-```
+- **Backend**: Python 3.12, Django 6.1
+- **API Framework**: Django REST Framework (DRF)
+- **Database**: SQLite (default for development)
+- **Frontend**: HTML5, Bootstrap 5, Custom CSS
 
 ---
 
-## 📡 REST API Reference
+## Database Architecture
 
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/events/` | List all active events (`?search=...`, `?category=...`) | Public |
-| `GET` | `/api/events/<id>/` | Get detailed event info & remaining seats | Public |
-| `POST` | `/api/events/` | Create a new event | Organizer / Admin |
-| `PUT/DELETE`| `/api/events/<id>/` | Update or delete an event | Organizer / Admin |
-| `POST` | `/api/events/<id>/register/` | Submit event registration | Public |
-| `GET` | `/api/events/<id>/attendees/`| View attendee list for event | Organizer / Admin |
-| `GET` | `/api/my-registrations/` | List registrations (`?email=...` or user session) | Public / User |
-| `POST` | `/api/registrations/<id>/cancel/` | Cancel registration & free seat | Public / Attendee |
-| `POST` | `/api/auth/register/` | Register new user account | Public |
-| `POST` | `/api/auth/login/` | User login session | Public |
-| `POST` | `/api/auth/logout/` | User logout | Authenticated |
-| `GET` | `/api/auth/me/` | Current user profile | Authenticated |
+- **Event**:
+  - `title`, `description`, `category`, `location`, `date`, `capacity`, `organizer`, `image_url`, `is_active`
+- **Registration**:
+  - `event` (ForeignKey), `user` (ForeignKey, optional), `full_name`, `email`, `phone`, `notes`, `status` (CONFIRMED / CANCELLED), `ticket_code`
 
 ---
 
-## 🚀 Quick Setup & Installation
+## API Endpoints
 
-### 1. Clone repository
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/events/` | List all active events (supports `?search=` and `?category=`) |
+| `GET` | `/api/events/<id>/` | Retrieve event details and seat count |
+| `POST` | `/api/events/` | Create a new event (Authenticated) |
+| `POST` | `/api/events/<id>/register/` | Register for an event |
+| `GET` | `/api/my-registrations/` | View registrations by logged-in user or `?email=` |
+| `POST` | `/api/registrations/<id>/cancel/` | Cancel a registration and free up the seat |
+| `GET` | `/api/events/<id>/attendees/` | View attendee list (Organizer/Staff only) |
+| `POST` | `/api/auth/register/` | User registration |
+| `POST` | `/api/auth/login/` | User login session |
+| `POST` | `/api/auth/logout/` | User logout |
+
+---
+
+## How to Run Locally
+
+### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/CodeAlpha_EventRegistrationSystem.git
+git clone https://github.com/xosmanova/CodeAlpha_EventRegistrationSystem.git
 cd CodeAlpha_EventRegistrationSystem
 ```
 
-### 2. Activate Virtual Environment
-- **Windows (PowerShell):**
+### 2. Activate virtual environment
+- **Windows:**
   ```powershell
   .\venv\Scripts\Activate.ps1
   ```
-- **Linux / macOS:**
+- **macOS / Linux:**
   ```bash
   source venv/bin/activate
   ```
 
-### 3. Install Dependencies
+### 3. Install requirements
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Apply Database Migrations
+### 4. Run migrations
 ```bash
 python manage.py migrate
 ```
 
-### 5. Seed Pre-configured Demo Data
-Automatically creates events, sample attendees, admin, and test user:
+### 5. Seed sample data
+Populates test events, superuser, and sample attendees:
 ```bash
 python manage.py seed_data
 ```
 
-### 6. Run the Development Server
+### 6. Start development server
 ```bash
 python manage.py runserver
 ```
 
-Now open:
-- 🌐 **Web Portal**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- 📖 **Interactive API Docs**: [http://127.0.0.1:8000/docs/](http://127.0.0.1:8000/docs/)
-- ⚙️ **Django Admin**: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+Open your browser at:
+- Web App: `http://127.0.0.1:8000/`
+- API Documentation: `http://127.0.0.1:8000/docs/`
+- Admin Panel: `http://127.0.0.1:8000/admin/`
 
 ---
 
-## 🔑 Default Credentials
+## Default Credentials
 
-| Role | Username | Password | Email |
-|---|---|---|---|
-| **Superuser / Admin** | `admin` | `admin123` | `admin@codealpha.tech` |
-| **Demo Attendee** | `john_doe` | `password123` | `john.doe@example.com` |
+- **Admin Account**: `admin` / `admin123`
+- **Test User**: `john_doe` / `password123`
 
 ---
 
-## 🧪 Running Automated Tests
+## Automated Tests
 
-Run the test suite verifying all 10 unit and API integration test cases:
+Run the test suite (10 test cases covering APIs, model constraints, and edge cases):
 ```bash
 python manage.py test
 ```
 
 ---
 
-## 👨‍💻 Developed For
-**CodeAlpha Internship Program** — *Backend Development Domain*
+## Author
+Developed by **xosmanova** for the **CodeAlpha Backend Development Internship Program**.
